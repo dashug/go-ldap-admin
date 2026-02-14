@@ -1,9 +1,11 @@
 package logic
 
 import (
+	"context"
 	"fmt"
 	"strings"
 
+	"github.com/chyroc/lark"
 	"github.com/eryajf/go-ldap-admin/config"
 	"github.com/eryajf/go-ldap-admin/model"
 	"github.com/eryajf/go-ldap-admin/model/request"
@@ -15,6 +17,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/viper"
+	wecomsdk "github.com/wenerme/go-wecom/wecom"
+	dingsdk "github.com/zhaoyunxing92/dingtalk/v2"
 )
 
 type BaseLogic struct{}
@@ -221,12 +225,26 @@ func (l BaseLogic) GetConfig(c *gin.Context, req any) (data any, rspError any) {
 	}
 	if config.Conf.DingTalk != nil {
 		rsp.DingTalkEnableSync = config.Conf.DingTalk.EnableSync
+		rsp.DingTalkFlag = config.Conf.DingTalk.Flag
+		rsp.DingTalkAppKey = config.Conf.DingTalk.AppKey
+		// 出于安全考虑，不回传密钥明文
+		rsp.DingTalkAppSecret = ""
+		rsp.DingTalkAgentID = config.Conf.DingTalk.AgentId
 	}
 	if config.Conf.FeiShu != nil {
 		rsp.FeiShuEnableSync = config.Conf.FeiShu.EnableSync
+		rsp.FeiShuFlag = config.Conf.FeiShu.Flag
+		rsp.FeiShuAppID = config.Conf.FeiShu.AppID
+		// 出于安全考虑，不回传密钥明文
+		rsp.FeiShuAppSecret = ""
 	}
 	if config.Conf.WeCom != nil {
 		rsp.WeComEnableSync = config.Conf.WeCom.EnableSync
+		rsp.WeComFlag = config.Conf.WeCom.Flag
+		rsp.WeComCorpID = config.Conf.WeCom.CorpID
+		// 出于安全考虑，不回传密钥明文
+		rsp.WeComCorpSecret = ""
+		rsp.WeComAgentID = config.Conf.WeCom.AgentID
 	}
 
 	return rsp, nil
@@ -281,6 +299,159 @@ func (l BaseLogic) UpdateDirectoryConfig(c *gin.Context, req any) (data any, rsp
 	}
 
 	return nil, nil
+}
+
+// UpdateThirdPartyConfig 更新第三方平台配置
+func (l BaseLogic) UpdateThirdPartyConfig(c *gin.Context, req any) (data any, rspError any) {
+	r, ok := req.(*request.BaseThirdPartyConfigReq)
+	if !ok {
+		return nil, ReqAssertErr
+	}
+	_ = c
+
+	platform := strings.ToLower(strings.TrimSpace(r.Platform))
+	switch platform {
+	case "dingtalk":
+		if config.Conf.DingTalk != nil {
+			if strings.TrimSpace(r.Flag) != "" {
+				config.Conf.DingTalk.Flag = strings.TrimSpace(r.Flag)
+				viper.Set("dingtalk.flag", strings.TrimSpace(r.Flag))
+			}
+			if strings.TrimSpace(r.AppKey) != "" {
+				config.Conf.DingTalk.AppKey = strings.TrimSpace(r.AppKey)
+				viper.Set("dingtalk.app-key", strings.TrimSpace(r.AppKey))
+			}
+			if strings.TrimSpace(r.AppSecret) != "" {
+				config.Conf.DingTalk.AppSecret = r.AppSecret
+				viper.Set("dingtalk.app-secret", r.AppSecret)
+			}
+			if strings.TrimSpace(r.AgentID) != "" {
+				config.Conf.DingTalk.AgentId = strings.TrimSpace(r.AgentID)
+				viper.Set("dingtalk.agent-id", strings.TrimSpace(r.AgentID))
+			}
+			config.Conf.DingTalk.EnableSync = r.EnableSync
+			viper.Set("dingtalk.enable-sync", r.EnableSync)
+		}
+	case "wecom":
+		if config.Conf.WeCom != nil {
+			if strings.TrimSpace(r.Flag) != "" {
+				config.Conf.WeCom.Flag = strings.TrimSpace(r.Flag)
+				viper.Set("wecom.flag", strings.TrimSpace(r.Flag))
+			}
+			if strings.TrimSpace(r.CorpID) != "" {
+				config.Conf.WeCom.CorpID = strings.TrimSpace(r.CorpID)
+				viper.Set("wecom.corp-id", strings.TrimSpace(r.CorpID))
+			}
+			if strings.TrimSpace(r.CorpSecret) != "" {
+				config.Conf.WeCom.CorpSecret = r.CorpSecret
+				viper.Set("wecom.corp-secret", r.CorpSecret)
+			}
+			if r.WeComAgentID > 0 {
+				config.Conf.WeCom.AgentID = r.WeComAgentID
+				viper.Set("wecom.agent-id", r.WeComAgentID)
+			}
+			config.Conf.WeCom.EnableSync = r.EnableSync
+			viper.Set("wecom.enable-sync", r.EnableSync)
+		}
+	case "feishu":
+		if config.Conf.FeiShu != nil {
+			if strings.TrimSpace(r.Flag) != "" {
+				config.Conf.FeiShu.Flag = strings.TrimSpace(r.Flag)
+				viper.Set("feishu.flag", strings.TrimSpace(r.Flag))
+			}
+			if strings.TrimSpace(r.AppID) != "" {
+				config.Conf.FeiShu.AppID = strings.TrimSpace(r.AppID)
+				viper.Set("feishu.app-id", strings.TrimSpace(r.AppID))
+			}
+			if strings.TrimSpace(r.AppSecret) != "" {
+				config.Conf.FeiShu.AppSecret = r.AppSecret
+				viper.Set("feishu.app-secret", r.AppSecret)
+			}
+			config.Conf.FeiShu.EnableSync = r.EnableSync
+			viper.Set("feishu.enable-sync", r.EnableSync)
+		}
+	default:
+		return nil, tools.NewValidatorError(fmt.Errorf("platform 仅支持 dingtalk/wecom/feishu"))
+	}
+
+	if err := viper.WriteConfig(); err != nil {
+		return nil, tools.NewOperationError(fmt.Errorf("保存配置文件失败: %s", err.Error()))
+	}
+	return nil, nil
+}
+
+// TestThirdPartyConfig 测试第三方平台连接
+func (l BaseLogic) TestThirdPartyConfig(c *gin.Context, req any) (data any, rspError any) {
+	r, ok := req.(*request.BaseThirdPartyConfigReq)
+	if !ok {
+		return nil, ReqAssertErr
+	}
+	_ = c
+
+	platform := strings.ToLower(strings.TrimSpace(r.Platform))
+	switch platform {
+	case "dingtalk":
+		appKey := firstNonEmpty(strings.TrimSpace(r.AppKey), config.Conf.DingTalk.AppKey)
+		appSecret := firstNonEmpty(r.AppSecret, config.Conf.DingTalk.AppSecret)
+		if appKey == "" || appSecret == "" {
+			return nil, tools.NewValidatorError(fmt.Errorf("钉钉 appKey/appSecret 不能为空"))
+		}
+		client, err := dingsdk.NewClient(appKey, appSecret)
+		if err != nil {
+			return nil, tools.NewOperationError(fmt.Errorf("钉钉初始化失败: %s", err.Error()))
+		}
+		if _, err = client.FetchDeptList(1, false, "zh_CN"); err != nil {
+			return nil, tools.NewOperationError(fmt.Errorf("钉钉连接测试失败: %s", err.Error()))
+		}
+	case "wecom":
+		corpID := firstNonEmpty(strings.TrimSpace(r.CorpID), config.Conf.WeCom.CorpID)
+		corpSecret := firstNonEmpty(r.CorpSecret, config.Conf.WeCom.CorpSecret)
+		agentID := r.WeComAgentID
+		if agentID <= 0 {
+			agentID = config.Conf.WeCom.AgentID
+		}
+		if corpID == "" || corpSecret == "" || agentID <= 0 {
+			return nil, tools.NewValidatorError(fmt.Errorf("企微 corpId/corpSecret/agentId 不能为空"))
+		}
+		client := wecomsdk.NewClient(wecomsdk.Conf{
+			CorpID:     corpID,
+			AgentID:    agentID,
+			CorpSecret: corpSecret,
+		})
+		if _, err := client.ListDepartment(&wecomsdk.ListDepartmentRequest{}); err != nil {
+			return nil, tools.NewOperationError(fmt.Errorf("企微连接测试失败: %s", err.Error()))
+		}
+	case "feishu":
+		appID := firstNonEmpty(strings.TrimSpace(r.AppID), config.Conf.FeiShu.AppID)
+		appSecret := firstNonEmpty(r.AppSecret, config.Conf.FeiShu.AppSecret)
+		if appID == "" || appSecret == "" {
+			return nil, tools.NewValidatorError(fmt.Errorf("飞书 appId/appSecret 不能为空"))
+		}
+		client := lark.New(lark.WithAppCredential(appID, appSecret))
+		pageSize := int64(1)
+		pageToken := ""
+		fetchChild := false
+		reqTmp := lark.GetDepartmentListReq{
+			PageToken:    &pageToken,
+			FetchChild:   &fetchChild,
+			PageSize:     &pageSize,
+			DepartmentID: "0",
+		}
+		if _, _, err := client.Contact.GetDepartmentList(context.Background(), &reqTmp); err != nil {
+			return nil, tools.NewOperationError(fmt.Errorf("飞书连接测试失败: %s", err.Error()))
+		}
+	default:
+		return nil, tools.NewValidatorError(fmt.Errorf("platform 仅支持 dingtalk/wecom/feishu"))
+	}
+
+	return tools.H{"platform": platform, "ok": true}, nil
+}
+
+func firstNonEmpty(current, fallback string) string {
+	if strings.TrimSpace(current) != "" {
+		return current
+	}
+	return fallback
 }
 
 // GetVersion 获取版本信息

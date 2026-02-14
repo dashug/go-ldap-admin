@@ -21,4 +21,18 @@ type BaseConfigRsp struct {
 	UserDN             string `json:"userDN"`
 	UserInitPassword   string `json:"userInitPassword"`
 	DefaultEmailSuffix string `json:"defaultEmailSuffix"`
+
+	DingTalkFlag      string `json:"dingTalkFlag"`
+	DingTalkAppKey    string `json:"dingTalkAppKey"`
+	DingTalkAppSecret string `json:"dingTalkAppSecret"`
+	DingTalkAgentID   string `json:"dingTalkAgentId"`
+
+	WeComFlag       string `json:"weComFlag"`
+	WeComCorpID     string `json:"weComCorpId"`
+	WeComCorpSecret string `json:"weComCorpSecret"`
+	WeComAgentID    int    `json:"weComAgentId"`
+
+	FeiShuFlag      string `json:"feiShuFlag"`
+	FeiShuAppID     string `json:"feiShuAppId"`
+	FeiShuAppSecret string `json:"feiShuAppSecret"`
 }

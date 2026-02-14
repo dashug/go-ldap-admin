@@ -45,3 +45,20 @@ type BaseUpdateDirectoryConfigReq struct {
 	DefaultEmailSuffix string `json:"defaultEmailSuffix" validate:"required,min=1,max=100"`
 	LdapEnableSync     bool   `json:"ldapEnableSync"`
 }
+
+// BaseThirdPartyConfigReq 第三方平台配置
+type BaseThirdPartyConfigReq struct {
+	Platform   string `json:"platform" validate:"required,oneof=dingtalk wecom feishu"`
+	Flag       string `json:"flag" validate:"omitempty,min=1,max=50"`
+	EnableSync bool   `json:"enableSync"`
+
+	AppKey    string `json:"appKey" validate:"omitempty,min=1,max=255"`
+	AppSecret string `json:"appSecret" validate:"omitempty,min=0,max=255"`
+	AgentID   string `json:"agentId" validate:"omitempty,min=0,max=50"`
+
+	CorpID       string `json:"corpId" validate:"omitempty,min=1,max=255"`
+	CorpSecret   string `json:"corpSecret" validate:"omitempty,min=0,max=255"`
+	WeComAgentID int    `json:"weComAgentId" validate:"omitempty"`
+
+	AppID string `json:"appId" validate:"omitempty,min=1,max=255"`
+}

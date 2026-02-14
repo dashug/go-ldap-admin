@@ -119,6 +119,38 @@ func (m *BaseController) UpdateDirectoryConfig(c *gin.Context) {
 	})
 }
 
+// UpdateThirdPartyConfig 更新第三方平台配置
+// @Summary 更新第三方平台配置
+// @Description 更新飞书、企微、钉钉对接参数
+// @Tags 基础管理
+// @Accept application/json
+// @Produce application/json
+// @Param data body request.BaseThirdPartyConfigReq true "平台配置"
+// @Success 200 {object} response.ResponseBody
+// @Router /base/thirdPartyConfig [post]
+func (m *BaseController) UpdateThirdPartyConfig(c *gin.Context) {
+	req := new(request.BaseThirdPartyConfigReq)
+	Run(c, req, func() (any, any) {
+		return logic.Base.UpdateThirdPartyConfig(c, req)
+	})
+}
+
+// TestThirdPartyConfig 测试第三方平台配置
+// @Summary 测试第三方平台配置
+// @Description 测试飞书、企微、钉钉连接是否可用
+// @Tags 基础管理
+// @Accept application/json
+// @Produce application/json
+// @Param data body request.BaseThirdPartyConfigReq true "平台配置"
+// @Success 200 {object} response.ResponseBody
+// @Router /base/thirdPartyConfig/test [post]
+func (m *BaseController) TestThirdPartyConfig(c *gin.Context) {
+	req := new(request.BaseThirdPartyConfigReq)
+	Run(c, req, func() (any, any) {
+		return logic.Base.TestThirdPartyConfig(c, req)
+	})
+}
+
 // GetVersion 获取版本信息
 // @Summary 获取版本信息
 // @Description 获取系统版本号、Git提交哈希和构建时间
