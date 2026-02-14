@@ -152,3 +152,41 @@ flowchart LR
 
 - 后端：<https://github.com/dashug/go-ldap-admin>
 - 前端：<https://github.com/dashug/go-ldap-admin-ui>
+
+## 部署说明
+
+### 快速部署（推荐，Docker Compose）
+
+后端仓库已提供可直接使用的编排文件：
+
+- `/docs/docker-compose/docker-compose.yaml`
+
+执行步骤：
+
+```bash
+cd docs/docker-compose
+docker compose up -d
+```
+
+默认端口：
+
+- 后端 API：`http://<你的服务器IP>:8888`
+
+说明：
+
+- 编排中默认带 OpenLDAP 容器，适合快速试用。
+- 如你使用外部 LDAP/AD，请修改编排里的 `config` 内容或挂载自定义 `config.yml`。
+
+### 本地开发运行（源码）
+
+```bash
+go mod download
+cp config.yml config.local.yml  # 可选，建议保留一份本地配置
+go run main.go
+```
+
+或使用 Makefile：
+
+```bash
+make run
+```
