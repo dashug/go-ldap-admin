@@ -156,27 +156,34 @@ flowchart LR
 
 ## 部署说明
 
-### 一键部署（前后端入口 + 后端 + OpenLDAP）
+### 一键部署（生产友好，支持 OpenLDAP / AD）
 
-已提供全栈一键部署目录：`deploy/quick-start`  
+已提供全栈一键部署目录：`deploy/full-stack`  
 
 执行：
 
 ```bash
-cd deploy/quick-start
-./quick-start.sh
+cd deploy/full-stack
+./setup.sh
 ```
+
+向导会引导你：
+
+1. 选择目录模式（`openldap` / `ad`）
+2. 填写地址、DN、管理员密码等参数
+3. 自动生成配置并启动容器
 
 启动后访问：
 
-- 管理入口：`http://localhost:8080`
-- 默认账号：`admin / 123456`
+- 管理入口：`http://localhost:<你设置的端口>`
+- 默认账号：`admin / <你输入的管理员密码>`
 
 说明：
 
-- `8080` 为统一入口（网关容器）。
-- 网关会转发到后端，后端内置前端页面。
-- 默认带 OpenLDAP，适合快速试用和演示。
+- 部署使用 `docker compose`，对小白友好。
+- `openldap` 模式会启动本地 OpenLDAP 容器。
+- `ad` 模式不会启动 OpenLDAP，直接接入外部 AD。
+- 网关会转发到后端，后端内置前端页面（前后端一体对外）。
 
 ### 快速部署（推荐，Docker Compose）
 
