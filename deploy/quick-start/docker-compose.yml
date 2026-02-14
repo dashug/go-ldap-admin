@@ -1,0 +1,138 @@
+networks:
+  go-ldap-admin:
+    driver: bridge
+
+services:
+  gateway:
+    image: nginx:alpine
+    container_name: go-ldap-admin-gateway
+    restart: always
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - go-ldap-admin-server
+    networks:
+      - go-ldap-admin
+
+  go-ldap-admin-server:
+    image: docker.cnb.cool/opsre/go-ldap-admin
+    container_name: go-ldap-admin-server
+    restart: always
+    environment:
+      WAIT_HOSTS: openldap:389
+    configs:
+      - source: go_ldap_admin_config
+        target: /app/config.yml
+    volumes:
+      - ./data/go-ldap-admin:/app/data
+    depends_on:
+      - openldap
+    networks:
+      - go-ldap-admin
+
+  openldap:
+    image: docker.cnb.cool/znb/images/openldap:1.4.1
+    container_name: go-ldap-admin-openldap
+    restart: always
+    environment:
+      TZ: Asia/Shanghai
+      LDAP_ORGANISATION: "example.com"
+      LDAP_DOMAIN: "example.com"
+      LDAP_ADMIN_PASSWORD: "123456"
+    command: [ '--copy-service' ]
+    volumes:
+      - ./data/openldap/database:/var/lib/ldap
+      - ./data/openldap/config:/etc/ldap/slapd.d
+    ports:
+      - "389:389"
+    networks:
+      - go-ldap-admin
+
+configs:
+  go_ldap_admin_config:
+    content: |
+      system:
+        mode: release
+        url-path-prefix: api
+        port: 8888
+        init-data: true
+      logs:
+        level: 0
+        path: data/logs
+        max-size: 50
+        max-backups: 100
+        max-age: 30
+        compress: false
+      database:
+        driver: sqlite3
+        source: data/go-ldap-admin.db
+      mysql:
+        username: root
+        password: 123456
+        database: go_ldap_admin
+        host: localhost
+        port: 3306
+        query: parseTime=True&loc=Local&timeout=10000ms
+        log-mode: false
+        table-prefix: tb
+        charset: utf8mb4
+        collation: utf8mb4_general_ci
+      jwt:
+        realm: ldap-admin
+        key: change-me-in-production
+        timeout: 12000
+        max-refresh: 12000
+      rate-limit:
+        fill-interval: 50
+        capacity: 200
+      email:
+        port: '465'
+        user: ''
+        from: 'go-ldap-admin'
+        host: ''
+        pass: ''
+      ldap:
+        directory-type: "openldap"
+        url: ldap://openldap:389
+        max-conn: 10
+        base-dn: "dc=example,dc=com"
+        admin-dn: "cn=admin,dc=example,dc=com"
+        admin-pass: "123456"
+        user-dn: "ou=people,dc=example,dc=com"
+        user-init-password: "123456"
+        group-name-modify: false
+        user-name-modify: false
+        user-password-encryption-type: "ssha"
+        default-email-suffix: "example.com"
+        enable-sync: false
+      dingtalk:
+        flag: "dingtalk"
+        app-key: ""
+        app-secret: ""
+        agent-id: ""
+        enable-sync: false
+        dept-sync-time: "0 30 2 * * *"
+        user-sync-time: "0 30 3 * * *"
+        dept-list:
+        is-update-syncd: false
+        user-leave-range: 0
+      wecom:
+        flag: "wecom"
+        corp-id: ""
+        agent-id: 1000003
+        corp-secret: ""
+        enable-sync: false
+        dept-sync-time: "0 30 2 * * *"
+        user-sync-time: "0 30 3 * * *"
+        is-update-syncd: false
+      feishu:
+        flag: "feishu"
+        app-id: ""
+        app-secret: ""
+        enable-sync: false
+        dept-sync-time: "0 20 0 * * *"
+        user-sync-time: "0 40 0 * * *"
+        dept-list:
+        is-update-syncd: false

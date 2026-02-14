@@ -156,6 +156,28 @@ flowchart LR
 
 ## 部署说明
 
+### 一键部署（前后端入口 + 后端 + OpenLDAP）
+
+已提供全栈一键部署目录：`deploy/quick-start`  
+
+执行：
+
+```bash
+cd deploy/quick-start
+./quick-start.sh
+```
+
+启动后访问：
+
+- 管理入口：`http://localhost:8080`
+- 默认账号：`admin / 123456`
+
+说明：
+
+- `8080` 为统一入口（网关容器）。
+- 网关会转发到后端，后端内置前端页面。
+- 默认带 OpenLDAP，适合快速试用和演示。
+
 ### 快速部署（推荐，Docker Compose）
 
 后端仓库已提供可直接使用的编排文件：
