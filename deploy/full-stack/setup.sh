@@ -24,12 +24,12 @@ to_base_dn() {
 ask() {
   prompt="$1"
   default="$2"
-  printf "%s [%s]: " "$prompt" "$default"
+  printf "%s [%s]: " "$prompt" "$default" >&2
   read -r v || true
   if [ -z "$v" ]; then
-    echo "$default"
+    printf "%s" "$default"
   else
-    echo "$v"
+    printf "%s" "$v"
   fi
 }
 
