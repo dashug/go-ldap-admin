@@ -47,6 +47,8 @@ if [ "$mode" != "openldap" ] && [ "$mode" != "ad" ]; then
 fi
 http_port=$(ask "管理入口端口" "8080")
 jwt_key=$(ask "JWT 密钥" "change-me-in-production")
+server_image=$(ask "后端镜像" "docker.cnb.cool/opsre/go-ldap-admin")
+ui_image=$(ask "前端镜像" "docker.cnb.cool/opsre/go-ldap-admin-ui")
 
 mkdir -p runtime runtime/data runtime/openldap/database runtime/openldap/config
 
@@ -62,8 +64,8 @@ if [ "$mode" = "openldap" ]; then
 
   cat > .env <<ENV
 HTTP_PORT=$http_port
-SERVER_IMAGE=ghcr.io/dashug/go-ldap-admin:latest
-UI_IMAGE=ghcr.io/dashug/go-ldap-admin-ui:latest
+SERVER_IMAGE=$server_image
+UI_IMAGE=$ui_image
 COMPOSE_PROFILES=openldap
 WAIT_HOSTS=openldap:389
 LDAP_ORGANISATION=$domain
@@ -82,8 +84,8 @@ else
 
   cat > .env <<ENV
 HTTP_PORT=$http_port
-SERVER_IMAGE=ghcr.io/dashug/go-ldap-admin:latest
-UI_IMAGE=ghcr.io/dashug/go-ldap-admin-ui:latest
+SERVER_IMAGE=$server_image
+UI_IMAGE=$ui_image
 COMPOSE_PROFILES=
 WAIT_HOSTS=
 LDAP_ORGANISATION=example.com
@@ -187,3 +189,5 @@ echo "访问地址: http://localhost:$http_port"
 echo "默认账号: admin / $admin_pass"
 echo "配置文件: $SCRIPT_DIR/runtime/config.yml"
 echo "镜像配置: $SCRIPT_DIR/.env"
+echo "后端镜像: $server_image"
+echo "前端镜像: $ui_image"
