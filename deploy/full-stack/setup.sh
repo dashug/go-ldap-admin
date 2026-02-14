@@ -62,6 +62,8 @@ if [ "$mode" = "openldap" ]; then
 
   cat > .env <<ENV
 HTTP_PORT=$http_port
+SERVER_IMAGE=ghcr.io/dashug/go-ldap-admin:latest
+UI_IMAGE=ghcr.io/dashug/go-ldap-admin-ui:latest
 COMPOSE_PROFILES=openldap
 WAIT_HOSTS=openldap:389
 LDAP_ORGANISATION=$domain
@@ -80,6 +82,8 @@ else
 
   cat > .env <<ENV
 HTTP_PORT=$http_port
+SERVER_IMAGE=ghcr.io/dashug/go-ldap-admin:latest
+UI_IMAGE=ghcr.io/dashug/go-ldap-admin-ui:latest
 COMPOSE_PROFILES=
 WAIT_HOSTS=
 LDAP_ORGANISATION=example.com
@@ -182,3 +186,4 @@ echo "[OK] 部署完成"
 echo "访问地址: http://localhost:$http_port"
 echo "默认账号: admin / $admin_pass"
 echo "配置文件: $SCRIPT_DIR/runtime/config.yml"
+echo "镜像配置: $SCRIPT_DIR/.env"

@@ -3,7 +3,8 @@
 This directory provides a beginner-friendly one-click deployment for:
 
 - unified web entry (gateway)
-- go-ldap-admin backend (embedded frontend)
+- go-ldap-admin backend
+- go-ldap-admin-ui frontend
 - optional local OpenLDAP (or connect external AD)
 
 ## Quick Start
@@ -30,3 +31,8 @@ Follow prompts:
 - `nginx.conf`: unified gateway config
 - `setup.sh`: interactive one-click installer
 - `.env.example`: optional env reference
+
+## Routing
+
+- `/` -> `go-ldap-admin-ui`
+- `/api/` -> `go-ldap-admin-server`

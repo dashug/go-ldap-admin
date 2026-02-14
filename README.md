@@ -183,7 +183,7 @@ cd deploy/full-stack
 - 部署使用 `docker compose`，对小白友好。
 - `openldap` 模式会启动本地 OpenLDAP 容器。
 - `ad` 模式不会启动 OpenLDAP，直接接入外部 AD。
-- 网关会转发到后端，后端内置前端页面（前后端一体对外）。
+- 网关会转发：`/` 到前端、`/api` 到后端（前后端分离，对应你维护的两个仓库）。
 
 ### 快速部署（推荐，Docker Compose）
 
