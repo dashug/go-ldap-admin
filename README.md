@@ -56,6 +56,96 @@ ldap:
 
 AD 场景建议使用 `ldaps://...:636`。
 
+## 配置流程说明（小白版）
+
+### 1. 配置目录服务（OpenLDAP/AD）
+
+1. 登录系统后进入 `人员管理 -> 用户管理`。
+2. 点击 `目录快速配置`。
+3. 选择目录类型：`OpenLDAP` 或 `Windows AD`。
+4. 填写 `LDAP地址`、`Base DN`、`管理员 DN`、`用户 OU DN` 等字段。
+5. 点击保存。
+
+建议：
+
+- AD 场景优先使用 `ldaps://域名:636`。
+- `管理员密码` 可留空，表示不覆盖当前密码。
+
+### 2. 配置第三方平台（钉钉/企微/飞书）
+
+1. 进入 `人员管理 -> 用户管理`。
+2. 点击 `平台对接向导`。
+3. 选择平台标签页，填写平台凭证（如 `AppKey/AppSecret` 或 `CorpId/CorpSecret`）。
+4. 先点击 `测试连接`。
+5. 连接成功后点击 `保存`。
+
+### 3. 首次同步建议顺序
+
+1. 先同步部门（避免用户找不到部门）。
+2. 再同步用户。
+3. 最后检查用户和分组列表中的同步状态。
+
+## 图文功能说明
+
+### 1. 功能总览图（首页 / 用户管理 / 分组管理）
+
+![首页](https://cdn.jsdelivr.net/gh/eryajf/tu/img/image_20220724_165545.png)
+![用户管理](https://cdn.jsdelivr.net/gh/eryajf/tu/img/image_20220724_165623.png)
+![分组管理](https://cdn.jsdelivr.net/gh/eryajf/tu/img/image_20220724_165701.png)
+
+### 2. 目录快速配置（步骤图 1-2-3）
+
+```mermaid
+flowchart LR
+  A["进入 用户管理"] --> B["点击 目录快速配置"]
+  B --> C["选择目录类型(OpenLDAP/AD)"]
+  C --> D["填写地址与DN参数"]
+  D --> E["点击保存"]
+```
+
+### 3. 平台对接向导（钉钉 / 企微 / 飞书）
+
+```mermaid
+flowchart LR
+  A["点击 平台对接向导"] --> B["选择平台标签页"]
+  B --> C["填写平台凭证"]
+  C --> D["测试连接"]
+  D --> E["保存配置"]
+  E --> F["执行同步任务"]
+```
+
+### 4. 测试连接与保存结果示例
+
+测试连接成功返回示例：
+
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "data": {
+    "platform": "feishu",
+    "ok": true
+  }
+}
+```
+
+保存配置成功返回示例：
+
+```json
+{
+  "code": 0,
+  "msg": "success",
+  "data": null
+}
+```
+
+### 5. 常见错误提示（可选）
+
+- `钉钉连接测试失败`：检查 `AppKey/AppSecret`、应用权限。
+- `企微连接测试失败`：检查 `CorpId/CorpSecret/AgentId`。
+- `飞书连接测试失败`：检查 `AppId/AppSecret`、通讯录权限。
+- `LDAP连接异常`：检查 `url/base-dn/admin-dn`，AD 场景优先 `ldaps://`。
+
 ## 维护仓库
 
 - 后端：<https://github.com/dashug/go-ldap-admin>
