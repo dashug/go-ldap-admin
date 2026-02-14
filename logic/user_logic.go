@@ -103,7 +103,7 @@ func (l UserLogic) Add(c *gin.Context, req any) (data any, rspError any) {
 		DepartmentId:  tools.SliceToString(r.DepartmentId, ","),
 		Source:        r.Source,
 		Roles:         roles,
-		UserDN:        fmt.Sprintf("uid=%s,%s", r.Username, config.Conf.Ldap.UserDN),
+		UserDN:        ildap.BuildUserDN(r.Username),
 	}
 
 	if user.Source == "" {

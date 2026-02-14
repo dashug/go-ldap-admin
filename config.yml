@@ -80,6 +80,8 @@ email:
 
 # # ldap 配置
 ldap:
+  # 目录类型，可选 openldap / ad
+  directory-type: "openldap"
   # ldap服务器地址
   url: ldap://localhost:389
   # ladp最大连接数设置

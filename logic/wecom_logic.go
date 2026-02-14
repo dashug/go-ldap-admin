@@ -200,7 +200,7 @@ func (d WeComLogic) AddUsers(user *model.User) error {
 	user.Roles = roles
 	user.Password = config.Conf.Ldap.UserInitPassword
 	user.Source = config.Conf.WeCom.Flag
-	user.UserDN = fmt.Sprintf("uid=%s,%s", user.Username, config.Conf.Ldap.UserDN)
+	user.UserDN = ildap.BuildUserDN(user.Username)
 
 	// 根据 user_dn 查询用户,不存在则创建
 	if !isql.User.Exist(tools.H{"user_dn": user.UserDN}) {

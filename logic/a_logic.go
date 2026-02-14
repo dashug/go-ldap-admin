@@ -136,7 +136,7 @@ func CommonAddUser(user *model.User, groups []*model.Group) error {
 
 	// 处理用户归属的组
 	for _, group := range groups {
-		if group.GroupDN[:3] == "ou=" {
+		if ildap.IsOUGroupDN(group.GroupDN) {
 			continue
 		}
 		// 先将用户和部门信息维护到MySQL
@@ -180,7 +180,7 @@ func CommonUpdateUser(oldUser, newUser *model.User, groupId []uint) error {
 		return tools.NewMySqlError(fmt.Errorf("%s", "根据部门ID获取部门信息失败"+err.Error()))
 	}
 	for _, group := range addgroups {
-		if group.GroupDN[:3] == "ou=" {
+		if ildap.IsOUGroupDN(group.GroupDN) {
 			continue
 		}
 		// 先将用户和部门信息维护到MySQL
@@ -201,7 +201,7 @@ func CommonUpdateUser(oldUser, newUser *model.User, groupId []uint) error {
 		return tools.NewMySqlError(fmt.Errorf("%s", "根据部门ID获取部门信息失败"+err.Error()))
 	}
 	for _, group := range removegroups {
-		if group.GroupDN[:3] == "ou=" {
+		if ildap.IsOUGroupDN(group.GroupDN) {
 			continue
 		}
 		err := isql.Group.RemoveUserFromGroup(group, []model.User{*newUser})

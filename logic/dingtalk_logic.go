@@ -194,7 +194,7 @@ func (d DingTalkLogic) AddUsers(user *model.User) error {
 	user.Creator = "system"
 	user.Source = config.Conf.DingTalk.Flag
 	user.Password = config.Conf.Ldap.UserInitPassword
-	user.UserDN = fmt.Sprintf("uid=%s,%s", user.Username, config.Conf.Ldap.UserDN)
+	user.UserDN = ildap.BuildUserDN(user.Username)
 
 	// 根据 user_dn 查询用户,不存在则创建
 	if !isql.User.Exist(tools.H{"user_dn": user.UserDN}) {

@@ -10,7 +10,7 @@
 [![GitHub license](https://img.shields.io/github/license/eryajf/go-ldap-admin)](https://github.com/eryajf/go-ldap-admin/blob/main/LICENSE)
 [![Commits](https://img.shields.io/github/commit-activity/m/eryajf/go-ldap-admin?color=ffff00)](https://github.com/eryajf/go-ldap-admin/commits/main)
 
-<p> 🌉 基于Go+Vue实现的openLDAP后台管理项目 🌉</p>
+<p> 🌉 基于Go+Vue实现的LDAP后台管理项目（支持 OpenLDAP / Windows AD） 🌉</p>
 
 <img src="https://cdn.jsdelivr.net/gh/eryajf/tu@main/img/image_20240420_214408.gif" width="800"  height="3">
 </div><br>
@@ -39,9 +39,9 @@
 
 ## ℹ️ 项目简介
 
-`go-ldap-admin`旨在为`OpenLDAP`服务端提供一个简单易用，清晰美观的现代化管理后台。
+`go-ldap-admin`旨在为`OpenLDAP`与`Windows Active Directory`提供一个简单易用，清晰美观的现代化管理后台。
 
-> 在完成针对`OpenLDAP`的管理能力之下，支持对`钉钉`，`企业微信`，`飞书`的集成，用户可以选择手动或者自动同步组织架构以及员工信息到平台中，让`go-ldap-admin`项目成为打通企业 IM 与企业内网应用之间的桥梁。
+> 在完成针对`OpenLDAP/AD`的管理能力之下，支持对`钉钉`，`企业微信`，`飞书`的集成，用户可以选择手动或者自动同步组织架构以及员工信息到平台中，让`go-ldap-admin`项目成为打通企业 IM 与企业内网应用之间的桥梁。
 
 ## 🏊 在线体验
 
@@ -81,8 +81,32 @@
 
 > **说明：**
 >
-> - 本项目的部署与使用需要你对 OpenLDAP 有一定的掌握，如果想要配置 IM 同步，可能还需要一定的 go 基础来调试(如有异常时)。
+> - 本项目的部署与使用需要你对 OpenLDAP/AD 有一定的掌握，如果想要配置 IM 同步，可能还需要一定的 go 基础来调试(如有异常时)。
 > - 文档已足够详尽，所有文档已讲过的，将不再提供免费的服务。如果你在安装部署时遇到问题，可通过[付费服务](http://ldapdoc.eryajf.net/pages/7eab1c/)寻求支持。
+
+## 🧩 目录服务配置（OpenLDAP / AD）
+
+在 `config.yml` 的 `ldap` 配置段中新增了 `directory-type`：
+
+```yaml
+ldap:
+  # 可选 openldap / ad
+  directory-type: "openldap"
+  url: ldap://localhost:389
+  base-dn: "dc=example,dc=com"
+  admin-dn: "cn=admin,dc=example,dc=com"
+  admin-pass: "your-password"
+  user-dn: "ou=people,dc=example,dc=com"
+```
+
+也可通过环境变量覆盖：
+
+```bash
+export LDAP_DIRECTORY_TYPE=ad
+```
+
+当 `directory-type=ad` 时，系统会自动使用 AD 兼容的用户/组与密码处理逻辑。  
+建议使用 `ldaps://`（如 `ldaps://ad.example.com:636`），尤其是涉及密码修改场景时。
 
 
 ## 🥰 感谢

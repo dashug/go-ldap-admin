@@ -254,7 +254,7 @@ func (l GroupLogic) AddUser(c *gin.Context, req any) (data any, rspError any) {
 		return nil, tools.NewMySqlError(fmt.Errorf("获取分组失败: %s", err.Error()))
 	}
 
-	if group.GroupDN[:3] == "ou=" {
+	if ildap.IsOUGroupDN(group.GroupDN) {
 		return nil, tools.NewMySqlError(fmt.Errorf("ou类型的分组不能添加用户"))
 	}
 
@@ -324,7 +324,7 @@ func (l GroupLogic) RemoveUser(c *gin.Context, req any) (data any, rspError any)
 		return nil, tools.NewMySqlError(fmt.Errorf("获取分组失败: %s", err.Error()))
 	}
 
-	if group.GroupDN[:3] == "ou=" {
+	if ildap.IsOUGroupDN(group.GroupDN) {
 		return nil, tools.NewMySqlError(fmt.Errorf("ou类型的分组内没有用户"))
 	}
 

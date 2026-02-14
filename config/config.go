@@ -103,6 +103,10 @@ func InitConfig() {
 	if ldapUrl != "" {
 		Conf.Ldap.Url = ldapUrl
 	}
+	ldapDirectoryType := os.Getenv("LDAP_DIRECTORY_TYPE")
+	if ldapDirectoryType != "" {
+		Conf.Ldap.DirectoryType = ldapDirectoryType
+	}
 	ldapBaseDN := os.Getenv("LDAP_BASE_DN")
 	if ldapBaseDN != "" {
 		Conf.Ldap.BaseDN = ldapBaseDN
@@ -187,6 +191,7 @@ type RateLimitConfig struct {
 }
 
 type LdapConfig struct {
+	DirectoryType              string `mapstructure:"directory-type" json:"directoryType"`
 	Url                        string `mapstructure:"url" json:"url"`
 	MaxConn                    int    `mapstructure:"max-conn" json:"maxConn"`
 	BaseDN                     string `mapstructure:"base-dn" json:"baseDN"`

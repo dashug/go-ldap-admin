@@ -9,6 +9,7 @@ import (
 	"github.com/eryajf/go-ldap-admin/public/client/openldap"
 	"github.com/eryajf/go-ldap-admin/public/common"
 	"github.com/eryajf/go-ldap-admin/public/tools"
+	"github.com/eryajf/go-ldap-admin/service/ildap"
 	"github.com/eryajf/go-ldap-admin/service/isql"
 	"github.com/gin-gonic/gin"
 )
@@ -211,7 +212,7 @@ func (d OpenLdapLogic) AddUsers(user *model.User) error {
 			return tools.NewMySqlError(fmt.Errorf("%s", "根据部门ID获取部门信息失败"+err.Error()))
 		}
 		for _, group := range groups {
-			if group.GroupDN[:3] == "ou=" {
+			if ildap.IsOUGroupDN(group.GroupDN) {
 				continue
 			}
 			// 先将用户和部门信息维护到MySQL
