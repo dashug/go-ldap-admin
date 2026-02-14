@@ -57,6 +57,7 @@ func InitBaseRoutes(r *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddleware) gi
 		base.POST("/sendcode", controller.Base.SendCode)   // 给用户邮箱发送验证码
 		base.POST("/changePwd", controller.Base.ChangePwd) // 修改用户密码
 		base.GET("/dashboard", controller.Base.Dashboard)  // 系统首页展示数据
+		base.POST("/directoryConfig", authMiddleware.MiddlewareFunc(), controller.Base.UpdateDirectoryConfig)
 	}
 	return r
 }

@@ -2,6 +2,7 @@ package logic
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/eryajf/go-ldap-admin/config"
 	"github.com/eryajf/go-ldap-admin/model"
@@ -13,6 +14,7 @@ import (
 	"github.com/eryajf/go-ldap-admin/service/isql"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 type BaseLogic struct{}
@@ -204,6 +206,18 @@ func (l BaseLogic) GetConfig(c *gin.Context, req any) (data any, rspError any) {
 	rsp := &response.BaseConfigRsp{}
 	if config.Conf.Ldap != nil {
 		rsp.LdapEnableSync = config.Conf.Ldap.EnableSync
+		rsp.DirectoryType = strings.TrimSpace(config.Conf.Ldap.DirectoryType)
+		if rsp.DirectoryType == "" {
+			rsp.DirectoryType = "openldap"
+		}
+		rsp.Url = config.Conf.Ldap.Url
+		rsp.BaseDN = config.Conf.Ldap.BaseDN
+		rsp.AdminDN = config.Conf.Ldap.AdminDN
+		// 出于安全考虑，不回传管理员密码明文
+		rsp.AdminPass = ""
+		rsp.UserDN = config.Conf.Ldap.UserDN
+		rsp.UserInitPassword = config.Conf.Ldap.UserInitPassword
+		rsp.DefaultEmailSuffix = config.Conf.Ldap.DefaultEmailSuffix
 	}
 	if config.Conf.DingTalk != nil {
 		rsp.DingTalkEnableSync = config.Conf.DingTalk.EnableSync
@@ -216,6 +230,57 @@ func (l BaseLogic) GetConfig(c *gin.Context, req any) (data any, rspError any) {
 	}
 
 	return rsp, nil
+}
+
+// UpdateDirectoryConfig 更新目录服务配置
+func (l BaseLogic) UpdateDirectoryConfig(c *gin.Context, req any) (data any, rspError any) {
+	r, ok := req.(*request.BaseUpdateDirectoryConfigReq)
+	if !ok {
+		return nil, ReqAssertErr
+	}
+	_ = c
+
+	dirType := strings.ToLower(strings.TrimSpace(r.DirectoryType))
+	if dirType == "" {
+		dirType = "openldap"
+	}
+	if dirType != "openldap" && dirType != "ad" {
+		return nil, tools.NewValidatorError(fmt.Errorf("directoryType 仅支持 openldap 或 ad"))
+	}
+
+	// 更新运行时配置
+	if config.Conf.Ldap != nil {
+		config.Conf.Ldap.DirectoryType = dirType
+		config.Conf.Ldap.Url = strings.TrimSpace(r.Url)
+		config.Conf.Ldap.BaseDN = strings.TrimSpace(r.BaseDN)
+		config.Conf.Ldap.AdminDN = strings.TrimSpace(r.AdminDN)
+		if strings.TrimSpace(r.AdminPass) != "" {
+			config.Conf.Ldap.AdminPass = r.AdminPass
+		}
+		config.Conf.Ldap.UserDN = strings.TrimSpace(r.UserDN)
+		config.Conf.Ldap.UserInitPassword = strings.TrimSpace(r.UserInitPassword)
+		config.Conf.Ldap.DefaultEmailSuffix = strings.TrimSpace(r.DefaultEmailSuffix)
+		config.Conf.Ldap.EnableSync = r.LdapEnableSync
+	}
+
+	// 更新配置文件
+	viper.Set("ldap.directory-type", dirType)
+	viper.Set("ldap.url", strings.TrimSpace(r.Url))
+	viper.Set("ldap.base-dn", strings.TrimSpace(r.BaseDN))
+	viper.Set("ldap.admin-dn", strings.TrimSpace(r.AdminDN))
+	if strings.TrimSpace(r.AdminPass) != "" {
+		viper.Set("ldap.admin-pass", r.AdminPass)
+	}
+	viper.Set("ldap.user-dn", strings.TrimSpace(r.UserDN))
+	viper.Set("ldap.user-init-password", strings.TrimSpace(r.UserInitPassword))
+	viper.Set("ldap.default-email-suffix", strings.TrimSpace(r.DefaultEmailSuffix))
+	viper.Set("ldap.enable-sync", r.LdapEnableSync)
+
+	if err := viper.WriteConfig(); err != nil {
+		return nil, tools.NewOperationError(fmt.Errorf("保存配置文件失败: %s", err.Error()))
+	}
+
+	return nil, nil
 }
 
 // GetVersion 获取版本信息

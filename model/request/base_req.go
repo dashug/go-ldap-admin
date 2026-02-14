@@ -32,3 +32,16 @@ type BaseConfigReq struct {
 // BaseVersionReq 获取版本信息结构体
 type BaseVersionReq struct {
 }
+
+// BaseUpdateDirectoryConfigReq 更新目录服务配置
+type BaseUpdateDirectoryConfigReq struct {
+	DirectoryType      string `json:"directoryType" validate:"required,oneof=openldap ad"`
+	Url                string `json:"url" validate:"required,min=1,max=255"`
+	BaseDN             string `json:"baseDN" validate:"required,min=1,max=255"`
+	AdminDN            string `json:"adminDN" validate:"required,min=1,max=255"`
+	AdminPass          string `json:"adminPass" validate:"omitempty,min=0,max=255"`
+	UserDN             string `json:"userDN" validate:"required,min=1,max=255"`
+	UserInitPassword   string `json:"userInitPassword" validate:"required,min=1,max=255"`
+	DefaultEmailSuffix string `json:"defaultEmailSuffix" validate:"required,min=1,max=100"`
+	LdapEnableSync     bool   `json:"ldapEnableSync"`
+}
