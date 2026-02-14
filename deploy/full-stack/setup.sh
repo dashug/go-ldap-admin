@@ -24,8 +24,13 @@ to_base_dn() {
 ask() {
   prompt="$1"
   default="$2"
-  printf "%s [%s]: " "$prompt" "$default" >&2
-  read -r v || true
+  if [ -r /dev/tty ] && [ -w /dev/tty ]; then
+    printf "%s [%s]: " "$prompt" "$default" > /dev/tty
+    read -r v < /dev/tty || true
+  else
+    printf "%s [%s]: " "$prompt" "$default" >&2
+    read -r v || true
+  fi
   if [ -z "$v" ]; then
     printf "%s" "$default"
   else
