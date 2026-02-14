@@ -10,6 +10,7 @@
   - [配置流程说明（小白版）](#%E9%85%8D%E7%BD%AE%E6%B5%81%E7%A8%8B%E8%AF%B4%E6%98%8E%E5%B0%8F%E7%99%BD%E7%89%88)
   - [图文功能说明](#%E5%9B%BE%E6%96%87%E5%8A%9F%E8%83%BD%E8%AF%B4%E6%98%8E)
   - [维护仓库](#%E7%BB%B4%E6%8A%A4%E4%BB%93%E5%BA%93)
+  - [部署说明](#%E9%83%A8%E7%BD%B2%E8%AF%B4%E6%98%8E)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
